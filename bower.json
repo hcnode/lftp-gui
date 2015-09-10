@@ -1,0 +1,21 @@
+{
+  "name": "ftp",
+  "version": "0.0.0",
+  "authors": [
+    "hcnode <7372@163.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-contextmenu": "~0.3.3",
+    "angular": "angularjs#~1.4.5",
+    "bootstrap": "~3.3.5",
+    "font-awesome": "fontawesome#~4.4.0"
+  }
+}

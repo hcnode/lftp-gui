@@ -1,0 +1,26 @@
+{
+  "name": "lftp-gui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {},
+  "author": "hcnode",
+  "license": "MIT",
+  "dependencies": {
+    "file-size": "^1.0.0",
+    "fs-extra": "^0.23.1",
+    "ftps": "git://github.com/hcnode/node-ftps.git",
+    "lodash": "^3.10.1",
+    "moment": "^2.10.6",
+    "q": "^1.4.1"
+  },
+  "repository": "https://github.com/hcnode/lftp-gui",
+  "homepage": "https://github.com/hcnode/lftp-gui",
+  "window": {
+    "title": "Ftp",
+    "icon": "alex.png",
+    "toolbar": true,
+    "width": 1390,
+    "height": 720
+  }
+}

@@ -1,0 +1,238 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 10px;
+    /*font: 1.2em/1.2 'Noto Sans', sans-serif;*/
+    background: -webkit-linear-gradient(0deg, #b9c3c9, #6b7c87);
+    background: linear-gradient(90deg, #b9c3c9, #6b7c87);
+}
+
+form.folderForm {
+    /*position: relative;*/
+    /*margin: 0 auto;*/
+    padding: 20px;
+    /*border-top: 30px solid #5c5d5e;*/
+    background-color: #e8ebed;
+    box-shadow: 0 0 80px rgba(0, 0, 0, .2);
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.folder {
+    float: left;
+    height: 500px;
+    width: 250px;
+}
+
+.table {
+    background-color: #e8ebed;
+    padding: 20px;
+}
+
+.files {
+    width: 420px;
+    float: left;
+    /*overflow: scroll;*/
+    height: 500px;
+}
+
+form.folderForm::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #adadae;
+    box-shadow: 20px 0 0 #adadae,
+    40px 0 0 #adadae;
+}
+
+h1 {
+    margin: 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #adadae;
+    color: #5c5d5e;
+    font-size: 1.1em;
+}
+
+.tree {
+    padding: 20px 0;
+}
+
+.tree::after {
+    content: '';
+    display: block;
+    clear: left;
+}
+
+.tree div {
+    clear: left;
+}
+
+input.icon[type="checkbox"] {
+    position: absolute;
+    left: -9999px;
+}
+
+label.folderTree {
+    display: block;
+    float: left;
+    clear: left;
+    position: relative;
+    margin-left: 25px;
+    padding: 5px;
+    border-radius: 5px;
+    color: #5c5d5e;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+label.folderTree::before {
+    display: block;
+    position: absolute;
+    /*top: 6px;*/
+    left: -15px;
+    font-family: 'FontAwesome';
+}
+
+label.folderTree::before {
+    content: '\f07b'; /* closed folder */
+}
+
+input.icon:checked + label::before {
+    content: '\f07c'; /* open folder */
+}
+
+input.icon:focus + label, a:focus {
+    outline: none;
+    background-color: #b9c3c9;
+}
+
+.sub {
+    display: none;
+    float: left;
+    margin-left: 10px;
+}
+
+input.icon:checked ~ .sub {
+    display: block;
+}
+
+.output {
+    background-color: #e8ebed;
+    padding: 10px;
+    clear: both;
+    height: 150px;
+    overflow: scroll;
+}
+
+/* set THEAD element to have block level attributes. All other non-IE browsers            */
+/* this enables overflow to work on TBODY element. All other non-IE, non-Mozilla browsers */
+thead tr {
+    display: block
+}
+
+/* define the table content to be scrollable                                              */
+/* set TBODY element to have block level attributes. All other non-IE browsers            */
+/* this enables overflow to work on TBODY element. All other non-IE, non-Mozilla browsers */
+/* induced side effect is that child TDs no longer accept width: auto                     */
+tbody {
+    display: block;
+    height: 462px;
+    overflow: auto;
+    width: 420px
+}
+
+/* define width of TH elements: 1st, 2nd, and 3rd respectively.          */
+/* Add 16px to last TH for scrollbar padding. All other non-IE browsers. */
+/* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors        */
+thead th {
+    width: 30px
+}
+
+thead th + th + th + th {
+    width: 130px
+}
+
+thead th + th {
+    width: 130px
+}
+
+thead th + th + th {
+    width: 130px
+}
+
+/* define width of TD elements: 1st, 2nd, and 3rd respectively.          */
+/* All other non-IE browsers.                                            */
+/* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors        */
+tbody td {
+    width: 30px
+}
+
+tbody td + td + td + td {
+    width: 130px
+}
+
+tbody td + td {
+    width: 130px
+}
+
+tbody td + td + td {
+    width: 130px
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -6px;
+    margin-left: -1px;
+    -webkit-border-radius: 0 6px 6px 6px;
+    -moz-border-radius: 0 6px 6px 6px;
+    border-radius: 0 6px 6px 6px;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+}
+
+.dropdown-submenu > a:after {
+    display: block;
+    content: " ";
+    float: right;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 5px 0 5px 5px;
+    border-left-color: #cccccc;
+    margin-top: 5px;
+    margin-right: -10px;
+}
+
+.dropdown-submenu:hover > a:after {
+    border-left-color: #ffffff;
+}
+
+.dropdown-submenu.pull-left {
+    float: none;
+}
+
+.dropdown-submenu.pull-left > .dropdown-menu {
+    left: -100%;
+    margin-left: 10px;
+    -webkit-border-radius: 6px 0 6px 6px;
+    -moz-border-radius: 6px 0 6px 6px;
+    border-radius: 6px 0 6px 6px;
+}
