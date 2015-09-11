@@ -95,8 +95,8 @@ module.exports = {
 	exec: function (cb) {
 		var that = this;
 		this.client.exec(function (error, result) {
-			if (result.error) {
-				that.onerror(result);
+			if (error) {
+				that.onerror(error, result);
 			} else {
 				that.ondata(result);
 				cb && cb(result);

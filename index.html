@@ -7,26 +7,34 @@
     <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/main.css">
-    <script src="bower_components/angular/angular.min.js"></script>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/bootstrap-contextmenu/bootstrap-contextmenu.js"></script>
+    <script src="bower_components/bootstrap-validator/dist/validator.min.js"></script>
+
 </head>
 <body ng-app="app">
 <div ng-controller="mainCtrl">
     <div style="margin-bottom: 10px;">
         <div class="btn-group">
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editModal" ng-click="createNew()">
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editModal"
+                    ng-click="createNew()">
                 New
             </button>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
                 Server <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
                 <li class="dropdown-submenu" ng-repeat="server in serverConf">
-                    <a href="javascript:void(0)" data-toggle="modal" data-target="#editModal" ng-click="showConf(server)">{{server.name}}</a>
+                    <a href="javascript:void(0)" data-toggle="modal" data-target="#editModal"
+                       ng-click="showConf(server)">{{server.name}}</a>
                     <ul class="dropdown-menu" ng-if="server.paths.length > 0">
-                        <li ng-repeat="path in server.paths" ><a href="javascript:void(0)" data-toggle="modal" data-target="#editModal" ng-click="showConf(server);getSelectedPath([path.name])">{{path.name}}</a></li>
+                        <li ng-repeat="path in server.paths"><a href="javascript:void(0)" data-toggle="modal"
+                                                                data-target="#editModal"
+                                                                ng-click="showConf(server);getSelectedPath([path.name])">{{path.name}}</a>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -35,7 +43,8 @@
     <div>
         <script id="recursionLocal" type="text/ng-template">
             <div ng-repeat="itemLocal in localFolderItems">
-                <input id="chk-{{itemLocal.id}}" class="icon" type="checkbox" ng-click="cdLocal(itemLocal)">
+                <input id="chk-{{itemLocal.id}}" class="icon" type="checkbox" ng-click="cdLocal(itemLocal, null, true)">
+
                 <div id="pos-{{itemLocal.id}}" style="height:0px; overflow:hidden"></div>
                 <label class="folderTree" for="chk-{{itemLocal.id}}">{{itemLocal.name}}</label>
 
@@ -46,7 +55,8 @@
         <form class="folder folderForm">
             <h1>Local</h1>
 
-            <div class="tree " style="overflow: scroll;height: 430px" ng-include="'recursionLocal'">
+            <div class="tree " id="dvScrollContent" style="overflow: scroll;height: 430px"
+                 ng-include="'recursionLocal'">
 
             </div>
         </form>
@@ -55,17 +65,17 @@
                 <thead>
                 <tr>
                     <th><input type="checkbox" ng-model="checkedAll.local" ng-change="checkLocalAll()"></th>
-                    <th >Name</th>
-                    <th >Size</th>
-                    <th >Date</th>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Date</th>
                 </tr>
                 </thead>
                 <tbody data-toggle="context" data-target="#context-menu-local">
                 <tr ng-repeat="item in localFiles">
                     <td><input type="checkbox" ng-model="localCheckedFile[item.id]"></td>
-                    <td >{{ item.name }}</td>
-                    <td >{{ item.filesize.human('jedec') }}</td>
-                    <td >{{ item.moment.format("YYYY-MM-DD") }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.filesize.human('jedec') }}</td>
+                    <td>{{ item.moment.format("YYYY-MM-DD") }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -73,8 +83,10 @@
         <script id="recursionRemote" type="text/ng-template">
             <div ng-repeat="item in remoteFolderItems">
                 <input id="chk-{{item.id}}" class="icon" type="checkbox" ng-click="cdRemote(item)">
+
                 <div id="pos-{{item.id}}" style="height:0px; overflow:hidden"></div>
                 <label class="folderTree" for="chk-{{item.id}}">{{item.name}}</label>
+
                 <div class="sub" ng-if="item.children" ng-include="'recursionRemote'"
                      ng-init="remoteFolderItems=item.children"></div>
             </div>
@@ -130,97 +142,146 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="editModalLabel">{{ editServer.id ? "Edit" : "New" }} Server</h4>
                 </div>
                 <div class="modal-body">
-                    <form class="form-horizontal">
+                    <form class="form-horizontal" id="frmServer" data-toggle="validator" role="form" onsubmit="return false;">
                         <div class="form-group">
                             <label for="txtName" class="col-sm-3 control-label">Name:</label>
+
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="txtName" ng-model="editServer.name">
+                                <input type="text" class="form-control" id="txtName" ng-model="editServer.name"
+                                       required>
+                                <div class="help-block with-errors"></div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="txtHost" class="col-sm-3 control-label">Host:</label>
+
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="txtHost" ng-model="editServer.host">
+                                <input type="text" class="form-control" id="txtHost" ng-model="editServer.host"
+                                       pattern="^\d{1,3}(\.\d{1,3}){3}$" required>
+                                <div class="help-block with-errors"></div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="txtUsername" class="col-sm-3 control-label">Username:</label>
+
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="txtUsername" ng-model="editServer.username">
+                                <input type="text" class="form-control" id="txtUsername" ng-model="editServer.username"
+                                       required>
+                                <div class="help-block with-errors"></div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="txtPassword" class="col-sm-3 control-label">Password:</label>
+
                             <div class="col-sm-9">
-                                <input type="password" class="form-control" id="txtPassword" ng-model="editServer.password">
+                                <input type="password" class="form-control" id="txtPassword"
+                                       ng-model="editServer.password" required>
+                                <div class="help-block with-errors"></div>
+
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="txtProtocol" class="col-sm-3 control-label">Protocol:</label>
+
                             <div class="col-sm-9">
-                                <select class="form-control" id="txtProtocol" ng-model="editServer.protocol">
+                                <select class="form-control" id="txtProtocol" ng-model="editServer.protocol" required>
                                     <option value="sftp">sftp</option>
                                     <option value="ftp">ftp</option>
                                     <option value="ftps">ftps</option>
                                 </select>
+                                <div class="help-block with-errors"></div>
+
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="txtPort" class="col-sm-3 control-label">Port:</label>
+
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="txtPort" ng-model="editServer.port">
+                                <input type="text" class="form-control" id="txtPort" ng-model="editServer.port"
+                                       pattern="^\d+$" required>
+                                <div class="help-block with-errors"></div>
+
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label for="txtPort" class="col-sm-3 control-label"></label>
 
+                            <div class="col-sm-9">
+                                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#frmInitialPath" aria-expanded="false" aria-controls="frmInitialPath">
+                                    设置初始路径
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <form class="form-horizontal collapse" id="frmInitialPath" data-toggle="validator" role="form" onsubmit="return false;">
                         <div class="form-group">
                             <label for="txtPaths" class="col-sm-3 control-label">Initial path:</label>
+
                             <div class="col-sm-9">
                                 <div class="col-sm-3">
-                                    <select multiple id="txtPaths" class="form-control" ng-change="getSelectedPath()" ng-model="editPath.selectedValue" style="height: 180px;width:80px">
-                                        <option ng-repeat="path in editServer.paths" value="{{path.name}}">{{path.name}}</option>
+                                    <select multiple id="txtPaths" class="form-control" ng-change="getSelectedPath()"
+                                            ng-model="editPath.selectedValue" style="height: 180px;width:80px">
+                                        <option ng-repeat="path in editServer.paths" value="{{path.name}}">
+                                            {{path.name}}
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="col-sm-9">
                                     <div class="form-group">
                                         <label for="namePath" class="col-sm-3">name:</label>
+
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control " ng-model="editPath.selectedPath.name" id="namePath" placeholder="name">
+                                            <input type="text" class="form-control "
+                                                   ng-model="editPath.selectedPath.name" id="namePath"
+                                                   placeholder="name" required="">
+                                            <div class="help-block with-errors"></div>
+
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="localPath" class="col-sm-3">Local:</label>
+
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control " ng-model="editPath.selectedPath.local" id="localPath" placeholder="Local path">
+                                            <input type="text" class="form-control "
+                                                   ng-model="editPath.selectedPath.local" id="localPath"
+                                                   placeholder="Local path">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="remotePath" class="col-sm-3">Remote:&nbsp;</label>
+
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control " ng-model="editPath.selectedPath.remote" id="remotePath" placeholder="Remote Path">
+                                            <input type="text" class="form-control "
+                                                   ng-model="editPath.selectedPath.remote" id="remotePath"
+                                                   placeholder="Remote Path">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <button type="button" style="margin-left: 15px" class="btn btn-primary" ng-click="savePath()">Save</button>
+                                        <button type="button" style="margin-left: 15px" class="btn btn-primary"
+                                                ng-click="savePath()">Save
+                                        </button>
                                     </div>
 
                                 </div>
+                            </div>
                         </div>
-
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" ng-click="connect()">Connect</button>
-                    <button type="button" class="btn btn-default" ng-click="delete()" ng-if="editServer.id">Delete</button>
+                    <button type="button" class="btn btn-default" ng-click="delete()" ng-if="editServer.id">Delete
+                    </button>
                     <button type="button" class="btn btn-default" ng-click="save()">Save</button>
                 </div>
             </div>

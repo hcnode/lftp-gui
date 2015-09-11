@@ -11,8 +11,7 @@
     "fs-extra": "^0.23.1",
     "ftps": "git://github.com/hcnode/node-ftps.git",
     "lodash": "^3.10.1",
-    "moment": "^2.10.6",
-    "q": "^1.4.1"
+    "moment": "^2.10.6"
   },
   "repository": "https://github.com/hcnode/lftp-gui",
   "homepage": "https://github.com/hcnode/lftp-gui",

@@ -13,9 +13,10 @@
     "tests"
   ],
   "dependencies": {
-    "bootstrap-contextmenu": "~0.3.3",
     "angular": "angularjs#~1.4.5",
     "bootstrap": "~3.3.5",
+    "bootstrap-contextmenu": "~0.3.3",
+    "bootstrap-validator": "~0.9.0",
     "font-awesome": "fontawesome#~4.4.0"
   }
 }

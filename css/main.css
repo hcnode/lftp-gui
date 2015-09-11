@@ -81,7 +81,6 @@ input.icon[type="checkbox"] {
     position: absolute;
     left: -9999px;
 }
-
 label.folderTree {
     display: block;
     float: left;
@@ -107,11 +106,11 @@ label.folderTree::before {
     content: '\f07b'; /* closed folder */
 }
 
-input.icon:checked + label::before {
+input.icon:checked ~ label::before {
     content: '\f07c'; /* open folder */
 }
 
-input.icon:focus + label, a:focus {
+input.icon:focus ~ label, a:focus {
     outline: none;
     background-color: #b9c3c9;
 }

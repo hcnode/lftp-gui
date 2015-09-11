@@ -19,11 +19,12 @@ try {
 var app = angular.module("app", deps).controller("mainCtrl", ['$scope', '$timeout', '$sce',  function ($scope, $timeout, $sce) {
 	$scope.outputs = [];
 	function output(result, type) {
-		var data = (typeof data == "object" ? JSON.stringify(result.data) : result.data) || "";
+		var data = type == "data" ? ((typeof result.data == "object" ? JSON.stringify(result.data) : (result.data || "")) || "")
+									: (result.error || result);
 		data = data.replace(/\n/ig, "<br>");
 		var cmd = result.cmd || "";
-		$scope.outputs.push(('<div style="color:'+ (type == "error" ? "red" : "green" ) +'">'+ type +'</div>' +
-			'<div style="color: blue;">cmd:'+ cmd +'</div><div>'+ data +'</div>'));
+		$scope.outputs.push(('<div style="color:'+ (type == "error" ? "red" : "green" ) +'">'+ type +':'+ new Date().toISOString() +'</div>' +
+		(type == "data" ? '<div style="color: blue;">cmd:'+ cmd +'</div><div>'+ data +'</div>' : '<div style="color: red">'+ data +'</div>')));
 		$timeout(function () {
 			document.getElementById("output_end").scrollIntoView();
 		}, 100);
@@ -31,8 +32,8 @@ var app = angular.module("app", deps).controller("mainCtrl", ['$scope', '$timeou
 	$scope.deliberatelyTrustOutput = function(msg) {
 		return $sce.trustAsHtml(msg);
 	};
-	ftp.init(function (result) {
-		output(result, "error");
+	ftp.init(function (error, result) {
+		output(error || result.error, "error");
 	}, function (result) {
 		output(result, "data");
 	});
@@ -104,7 +105,7 @@ var app = angular.module("app", deps).controller("mainCtrl", ['$scope', '$timeou
 			})
 		})
 	};
-	$scope.cdLocal = function (item, cb) {
+	$scope.cdLocal = function (item, cb, isClick) {
 		var path = item.path + "/" + item.name;
 		$scope.localFiles = [];
 		$scope.localCheckedFile = {};
@@ -113,12 +114,14 @@ var app = angular.module("app", deps).controller("mainCtrl", ['$scope', '$timeou
 		fs.getFiles(path, function (data) {
 			$timeout(function () {
 				getLocalItems(data);
-				$timeout(function () {
-					document.getElementById("pos-" + item.id).scrollIntoView();
-				}, 100);
+				if (!isClick || 1) {
+					$timeout(function () {
+						document.getElementById("pos-" + item.id).scrollIntoView();
+					}, 100);
+				}
 				cb && cb();
 			})
-		})
+		});
 	};
 	$scope.checkedAll = {};
 	$scope.checkRemoteAll = function () {
@@ -142,29 +145,51 @@ var app = angular.module("app", deps).controller("mainCtrl", ['$scope', '$timeou
 	$scope.createNew = function () {
 		$scope.editServer = {protocol : "sftp", paths : []};
 	};
-	$scope.save = function () {
-		if($scope.editServer.id){
-			var server = _.findWhere($scope.serverConf, {id : $scope.editServer.id});
-			if(server){
-				angular.extend(server, $scope.editServer);
+	angular.element('#frmInitialPath').validator().on('submit', function (e) {
+		if (e.isDefaultPrevented()) {
+			// handle the invalid form...
+		} else {
+			var path = _.findWhere($scope.editServer.paths, {name : $scope.editPath.selectedPath.name});
+			if(path){
+				angular.extend(path, $scope.editPath.selectedPath);
 			}else{
+				$scope.editServer.paths = $scope.editServer.paths || [];
+				$scope.editServer.paths.push($scope.editPath.selectedPath);
+			}
+			$scope.editPath.selectedValue = "";
+			$scope.editPath.selectedPath = {};
+
+		}
+	});
+	angular.element('#frmServer').validator().on('submit', function (e) {
+		if (e.isDefaultPrevented()) {
+			// handle the invalid form...
+		} else {
+			if($scope.editServer.id){
+				var server = _.findWhere($scope.serverConf, {id : $scope.editServer.id});
+				if(server){
+					angular.extend(server, $scope.editServer);
+				}else{
+					$scope.serverConf.push($scope.editServer);
+				}
+			}else{
+				$scope.editServer.id = new Date().valueOf();
 				$scope.serverConf.push($scope.editServer);
 			}
-		}else{
-			$scope.editServer.id = new Date().valueOf();
-			$scope.serverConf.push($scope.editServer);
+			fs.saveConf($scope.serverConf, function (err) {
+				if(err){
+					output(err, "error");
+				}
+			});
+			$('#editModal').modal('hide');
 		}
-		fs.saveConf($scope.serverConf, function (err) {
-			if(err){
-				output(err, "error");
-			}
-		});
-		$('#editModal').modal('hide');
+	});
+	$scope.save = function () {
+		angular.element('#frmServer').submit();
 	};
 	function gotoRemotePath(remote) {
-		var root = null;
 		var folders = remote.split("/");
-		(function() {
+		(function(root) {
 			var callee = arguments.callee;
 			if (folders.length > 0) {
 				var item = folders.shift();
@@ -174,25 +199,28 @@ var app = angular.module("app", deps).controller("mainCtrl", ['$scope', '$timeou
 					} else {
 						root = _.findWhere(root.children, {name: item});
 					}
-					$scope.cdRemote(root, function (error) {
-						if(!error) {
-							document.getElementById("chk-" + root.id).checked = true;
-							$timeout(function () {
-								document.getElementById("pos-" + root.id).scrollIntoView();
-							}, 100);
-							callee();
-						}
-					})
+					if(root) {
+						$scope.cdRemote(root, function (error) {
+							if (!error) {
+								document.getElementById("chk-" + root.id).checked = true;
+								$timeout(function () {
+									document.getElementById("pos-" + root.id).scrollIntoView();
+								}, 100);
+								callee.call(this, root);
+							}
+						})
+					}else{
+						output({error: item + " not found"}, "error")
+					}
 				}else{
-					callee();
+					callee.call(this, root);
 				}
 			}
-		})();
+		})(null);
 	}
 	function gotoLocalPath(local) {
-		var root = null;
 		var folders = local.split("/");
-		(function() {
+		(function(root) {
 			var callee = arguments.callee;
 			if (folders.length > 0) {
 				var item = folders.shift();
@@ -202,18 +230,22 @@ var app = angular.module("app", deps).controller("mainCtrl", ['$scope', '$timeou
 					} else {
 						root = _.findWhere(root.children, {name: item});
 					}
-					$scope.cdLocal(root, function () {
-						document.getElementById("chk-" + root.id).checked = true;
-						$timeout(function () {
-							document.getElementById("pos-" + root.id).scrollIntoView();
-						}, 100);
-						callee();
-					})
+					if (root) {
+						$scope.cdLocal(root, function () {
+							document.getElementById("chk-" + root.id).checked = true;
+							$timeout(function () {
+								document.getElementById("pos-" + root.id).scrollIntoView();
+							}, 100);
+							callee.call(this, root);
+						})
+					}else{
+						output({error: item + " not found"}, "error")
+					}
 				}else{
-					callee();
+					callee.call(this, root);
 				}
 			}
-		})();
+		})(null);
 	}
 
 	$scope.connect = function () {
@@ -259,15 +291,7 @@ var app = angular.module("app", deps).controller("mainCtrl", ['$scope', '$timeou
 		$('#editModal').modal('hide');
 	};
 	$scope.savePath = function () {
-		var path = _.findWhere($scope.editServer.paths, {name : $scope.editPath.selectedPath.name});
-		if(path){
-			angular.extend(path, $scope.editPath.selectedPath);
-		}else{
-			$scope.editServer.paths = $scope.editServer.paths || [];
-			$scope.editServer.paths.push($scope.editPath.selectedPath);
-		}
-		$scope.editPath.selectedValue = "";
-		$scope.editPath.selectedPath = {};
+		angular.element('#frmInitialPath').submit();
 	};
 	$scope.getSelectedPath = function (value) {
 		value = value || $scope.editPath.selectedValue;
